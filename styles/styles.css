@@ -1,0 +1,21 @@
+﻿body {
+	font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.top-nav-bar {
+	padding: 18px;
+	overflow: hidden;
+	background-color: #103d4b;
+	text-align: center;
+	font-size: x-large;
+}
+.top-nav-bar a {
+	float: left;
+	display: block;
+	color: antiquewhite;
+	text-align: center;
+	padding: 14px;
+	text-decoration: none;
+}
+.top-nav-bar a:hover {
+	background-color: #23524c;
+}
