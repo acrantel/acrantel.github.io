@@ -1,21 +1,28 @@
-﻿body {
+﻿:root {
+	--color1: #272d2d;
+	--color2: #332526;
+	--color3: #a39ba8;
+	--color4: #b8c5d6;
+	--color5: #efebce;
+}
+body {
 	font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 .top-nav-bar {
 	padding: 18px;
 	overflow: hidden;
-	background-color: #103d4b;
+	background-color: var(--color3);
 	text-align: center;
 	font-size: x-large;
 }
 .top-nav-bar a {
 	float: left;
 	display: block;
-	color: antiquewhite;
+	color: var(--color5);
 	text-align: center;
 	padding: 14px;
 	text-decoration: none;
 }
 .top-nav-bar a:hover {
-	background-color: #23524c;
+	background-color: var(--color4);
 }
