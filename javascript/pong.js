@@ -3,9 +3,6 @@ var context = canvas.getContext("2d");
 
 // listeners
 window.addEventListener('mousemove', function(e) {
-  // change paddleVeloc
-  let timeDif = Date.now() - prevPaddle2Time;
-  paddleVeloc = (e.y-paddle2y) * (1000 / timeDif)
   // player uses the mouse to control paddle 2
   paddle2y = e.y;
 });
@@ -32,8 +29,7 @@ var paddle1x = playLeft + unitLength;
 var paddle1y = canvas.height / 2;
 var paddle2x = playRight - unitLength;
 var paddle2y = paddle1y;
-var paddleVeloc = 0;
-var prevPaddle2Time = 0;
+var prevPaddle2y = paddle2y;
 
 // ball variables
 var ballx = (playLeft + playRight) / 2;
@@ -116,8 +112,9 @@ function drawBall() {
 
 function updateBall() {
 	if (gameOn) {
-    var newX = ballx + ballvx/ballfps;
-    var newY = bally + ballvy/ballfps;
+  	let paddleVeloc = (prevPaddle2y-paddle2y) * (1000 / ballfps);
+    let newX = ballx + ballvx/ballfps;
+    let newY = bally + ballvy/ballfps;
     if (newY <= playTop) {
       newY = playTop;
       ballvy = -ballvy;
@@ -130,12 +127,10 @@ function updateBall() {
       newX = playLeft+unitLength;
       ballvx = -ballvx;
       ballvy += paddleVeloc;
-      console.log(paddleVeloc);
     } else if (newX >= playRight-2*unitLength && newX < playRight-3*unitLength/2 && 
         (newY >= paddle2y-unitLength*3-1 && newY <= paddle2y+unitLength*2-1)) {
       newX = playRight-2*unitLength;
       ballvx = -ballvx;
-      console.log(paddleVeloc);
       ballvy += paddleVeloc;
     }
     ballx = newX;
