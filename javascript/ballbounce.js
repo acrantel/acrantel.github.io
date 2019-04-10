@@ -37,12 +37,10 @@ function update() {
 }
 
 function drawBall() {
-	with (context) {
-		clearRect(0, 0, canvas.width, canvas.height);
-		fillStyle = color;
-		beginPath();
-		arc(x, y, radius, 0, 2 * Math.PI, true);
-		closePath();
-		fill();
-	};
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.fillStyle = color;
+	context.beginPath();
+	context.arc(x, y, radius, 0, 2 * Math.PI, true);
+	context.closePath();
+	context.fill();
 }
