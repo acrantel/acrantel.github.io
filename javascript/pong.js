@@ -36,8 +36,13 @@ var paddle1x = playLeft + unitLength;
 var paddle1y = canvas.height / 2;
 var paddle2x = playRight - unitLength;
 var paddle2y = paddle1y;
+
 var prevPaddle2y = paddle2y;
-var maxCompSpeed = ballvx*.6; // px/sec
+var paddleVelocUpdate = 100; // every 100 ms update paddle velocity
+var paddleVeloc = 0;
+
+// ai variables
+var maxCompSpeed = ballvx * .6; // px/sec
 var AIps = 60; // the number of times to call the ai per second
 
 function updateDisplay() {
@@ -46,7 +51,9 @@ function updateDisplay() {
 	context.fillRect(0, 0, canvas.width, canvas.height);;
 	drawDivider();
 	drawScores();
-	drawPaddles();
+	if (gameOn) {
+		drawPaddles();
+	}
 	drawBorder();
 	drawBall();
 }
@@ -114,7 +121,6 @@ function drawBall() {
 
 function updateBall() {
 	if (gameOn) {
-  		let paddleVeloc = (paddle2y-prevPaddle2y) * (ballfps) * 1/4;
 		let newX = ballx + ballvx/ballfps;
 		let newY = bally + ballvy/ballfps;
 		if (newY <= playTop) {
@@ -137,13 +143,19 @@ function updateBall() {
 		}
 		ballx = newX;
 		bally = newY;
-		prevPaddle2y = paddle2y;
 		window.setTimeout(updateBall, 1000/ballfps);
 	}
 }
 
 function runAI() {
-	if (bally > paddle1y) {
+	if (ballx < playLeft || ballx > playRight) {
+		if (paddle1y > (playTop + playBottom) / 2) {
+			paddle1y += Math.max((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, -maxCompSpeed / AIps);
+		} else {
+			paddle1y += Math.min((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, maxCompSpeed / AIps);
+		}
+	}
+	else if (bally > paddle1y) {
 		paddle1y += Math.min(bally + unitLength / 2 - paddle1y, maxCompSpeed / AIps);
 	} else {
 		paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxCompSpeed / AIps);
@@ -151,11 +163,17 @@ function runAI() {
 	window.setTimeout(runAI, 1000/AIps);
 }
 
+function updatePaddleVelocity() {
+	paddleVeloc = (paddle2y - prevPaddle2y) * (1000 / paddleVelocUpdate);
+	prevPaddle2y = paddle2y;
+	window.setTimeout(updatePaddleVelocity, paddleVelocUpdate);
+}
+
 function nextSet() {
 	// start the next set
 	ballx = (playLeft + playRight) / 2;
 	bally = Math.floor(Math.random()*(playBottom-playTop-10)+playTop);
-	ballvy = Math.random() * ballvx + 1;
+	ballvy = Math.random() * ballvx / 2 + 1;
 	ballvx = -ballvx;
 }
 
@@ -186,3 +204,4 @@ gameOn = true;
 window.requestAnimationFrame(mainLoop);
 updateBall();
 runAI();
+updatePaddleVelocity();
