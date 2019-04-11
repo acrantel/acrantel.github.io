@@ -38,7 +38,7 @@ var paddle2x = playRight - unitLength;
 var paddle2y = paddle1y;
 
 var prevPaddle2y = paddle2y;
-var paddleVelocUpdate = 100; // every 100 ms update paddle velocity
+var paddleVelocUpdate = 300; // every 300 ms update paddle velocity
 var paddleVeloc = 0;
 
 // ai variables
@@ -134,7 +134,6 @@ function updateBall() {
 				(newY > paddle1y - unitLength * 3 - 1 && newY < paddle1y + unitLength * 2 - 1)) {
 			newX = playLeft+unitLength;
 			ballvx = -ballvx;
-			ballvy += paddleVeloc;
 		} else if (newX >= playRight-2*unitLength && newX < playRight-unitLength && 
 				(newY >= paddle2y-unitLength*3-1 && newY <= paddle2y+unitLength*2-1)) {
 			newX = playRight-2*unitLength;
