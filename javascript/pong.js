@@ -6,7 +6,20 @@ window.addEventListener('mousemove', function(e) {
 	// player uses the mouse to control paddle 2
 	paddle2y = e.y;
 });
-
+window.addEventListener('keydown', function (e) {
+	if (e.key == "ArrowDown") {
+		downArrow = true;
+	} else if (e.key == "ArrowUp") {
+		upArrow = true;
+	}
+});
+window.addEventListener('keyup', function (e) {
+	if (e.key == "ArrowDown") {
+		downArrow = false;
+	} else if (e.key = "ArrowUp") {
+		upArrow = false;
+	}
+});
 // display variables
 var playTop = canvas.height / 12;
 var playBottom = canvas.height - playTop;
@@ -36,13 +49,14 @@ var paddle1x = playLeft + unitLength;
 var paddle1y = canvas.height / 2;
 var paddle2x = playRight - unitLength;
 var paddle2y = paddle1y;
-
+var upArrow = false; // flag for up arrow being pressed
+var downArrow = false; // flag for down arrow being pressed
 var prevPaddle2y = paddle2y;
 var paddleVelocUpdate = 300; // every 300 ms update paddle velocity
-var paddleVeloc = 0;
+var paddle2Veloc = 0;
 
 // ai variables
-var maxCompSpeed = ballvx * .6; // px/sec
+var maxPaddleSpeed = ballvx * .6; // px/sec
 var AIps = 60; // the number of times to call the ai per second
 
 function updateDisplay() {
@@ -138,7 +152,7 @@ function updateBall() {
 				(newY >= paddle2y-unitLength*3-1 && newY <= paddle2y+unitLength*2-1)) {
 			newX = playRight-2*unitLength;
 			ballvx = -ballvx;
-			ballvy += paddleVeloc;
+			ballvy += paddle2Veloc;
 		}
 		ballx = newX;
 		bally = newY;
@@ -149,21 +163,29 @@ function updateBall() {
 function runAI() {
 	if (ballx < playLeft || ballx > playRight) {
 		if (paddle1y > (playTop + playBottom) / 2) {
-			paddle1y += Math.max((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, -maxCompSpeed / AIps);
+			paddle1y += Math.max((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
 		} else {
-			paddle1y += Math.min((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, maxCompSpeed / AIps);
+			paddle1y += Math.min((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
 		}
 	}
 	else if (bally > paddle1y) {
-		paddle1y += Math.min(bally + unitLength / 2 - paddle1y, maxCompSpeed / AIps);
+		paddle1y += Math.min(bally + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
 	} else {
-		paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxCompSpeed / AIps);
+		paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
 	}
-	window.setTimeout(runAI, 1000/AIps);
+
+	if (downArrow && !upArrow) {
+		paddle2y = Math.min(playBottom, paddle2y + 2*maxPaddleSpeed / AIps);
+	}
+	else if (upArrow && !downArrow) {
+		paddle2y = Math.max(0, paddle2y - 2* maxPaddleSpeed / AIps);
+	}
+
+	window.setTimeout(runAI, 1000 / AIps);
 }
 
 function updatePaddleVelocity() {
-	paddleVeloc = (paddle2y - prevPaddle2y) * (1000 / paddleVelocUpdate);
+	paddle2Veloc = (paddle2y - prevPaddle2y) * (1000 / paddleVelocUpdate);
 	prevPaddle2y = paddle2y;
 	window.setTimeout(updatePaddleVelocity, paddleVelocUpdate);
 }
