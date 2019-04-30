@@ -2,9 +2,11 @@ var canvas = document.getElementById("pong-canvas");
 var context = canvas.getContext("2d");
 
 // listeners
-window.addEventListener('mousemove', function(e) {
+canvas.addEventListener('mousemove', function(e) {
 	// player uses the mouse to control paddle 2
-	paddle2y = e.y;
+    paddle2y = e.y;
+    queuePointer = (queuePointer + 1) % queueLen;
+    circQueue[queuePointer] = paddle2y;
 });
 window.addEventListener('keydown', function (e) {
 	if (e.key == "ArrowDown") {
@@ -51,9 +53,13 @@ var paddle2x = playRight - unitLength;
 var paddle2y = paddle1y;
 var upArrow = false; // flag for up arrow being pressed
 var downArrow = false; // flag for down arrow being pressed
-var prevPaddle2y = paddle2y;
-var paddleVelocUpdate = 300; // every 300 ms update paddle velocity
-var paddle2Veloc = 0;
+// paddle speed calculation variables
+var queueLen = 40;
+var circQueue = [];
+var queuePointer = 0;
+for (let q = 0; q < queueLen; q++) {
+    circQueue.push(paddle2y);
+}
 
 // ai variables
 var maxPaddleSpeed = ballvx * .6; // px/sec
@@ -152,7 +158,7 @@ function updateBall() {
 				(newY >= paddle2y-unitLength*3-1 && newY <= paddle2y+unitLength*2-1)) {
 			newX = playRight-2*unitLength;
 			ballvx = -ballvx;
-			ballvy += paddle2Veloc;
+            ballvy += circQueue[queuePointer] - circQueue[(queuePointer+1) % queueLen]; // (current y val in queue - next yval in queue)
 		}
 		ballx = newX;
 		bally = newY;
@@ -174,20 +180,19 @@ function runAI() {
 		paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
 	}
 
+    // check for player's paddle moving at the same time (this is bad)
 	if (downArrow && !upArrow) {
-		paddle2y = Math.min(playBottom, paddle2y + 2*maxPaddleSpeed / AIps);
+        paddle2y = Math.min(playBottom, paddle2y + 2 * maxPaddleSpeed / AIps);
+        queuePointer = (queuePointer + 1) % queueLen;
+        circQueue[queuePointer] = paddle2y;
 	}
 	else if (upArrow && !downArrow) {
-		paddle2y = Math.max(0, paddle2y - 2* maxPaddleSpeed / AIps);
+        paddle2y = Math.max(0, paddle2y - 2 * maxPaddleSpeed / AIps);
+        queuePointer = (queuePointer + 1) % queueLen;
+        circQueue[queuePointer] = paddle2y;
 	}
 
 	window.setTimeout(runAI, 1000 / AIps);
-}
-
-function updatePaddleVelocity() {
-	paddle2Veloc = (paddle2y - prevPaddle2y) * (1000 / paddleVelocUpdate);
-	prevPaddle2y = paddle2y;
-	window.setTimeout(updatePaddleVelocity, paddleVelocUpdate);
 }
 
 function nextSet() {
@@ -225,4 +230,3 @@ gameOn = true;
 window.requestAnimationFrame(mainLoop);
 updateBall();
 runAI();
-updatePaddleVelocity();
