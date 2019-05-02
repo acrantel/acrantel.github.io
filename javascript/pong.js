@@ -2,7 +2,7 @@ var canvas = document.getElementById("pong-canvas");
 var context = canvas.getContext("2d");
 
 // listeners
-canvas.addEventListener('mousemove', function(e) {
+window.addEventListener('mousemove', function(e) {
 	// player uses the mouse to control paddle 2
     paddle2y = e.y;
     queuePointer = (queuePointer + 1) % queueLen;
@@ -22,6 +22,11 @@ window.addEventListener('keyup', function (e) {
 		upArrow = false;
 	}
 });
+window.addEventListener('mouseup', function (e) {
+    if (!gameOn) {
+        start();
+    }
+})
 // display variables
 var playTop = canvas.height / 12;
 var playBottom = canvas.height - playTop;
@@ -71,9 +76,7 @@ function updateDisplay() {
 	context.fillRect(0, 0, canvas.width, canvas.height);;
 	drawDivider();
 	drawScores();
-	if (gameOn) {
-		drawPaddles();
-	}
+	drawPaddles();
 	drawBorder();
 	drawBall();
 }
@@ -167,32 +170,34 @@ function updateBall() {
 }
 
 function runAI() {
-	if (ballx < playLeft || ballx > playRight) {
-		if (paddle1y > (playTop + playBottom) / 2) {
-			paddle1y += Math.max((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
-		} else {
-			paddle1y += Math.min((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
-		}
-	}
-	else if (bally > paddle1y) {
-		paddle1y += Math.min(bally + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
-	} else {
-		paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
-	}
+    if (gameOn) {
+        if (ballx < playLeft || ballx > playRight) {
+            if (paddle1y > (playTop + playBottom) / 2) {
+                paddle1y += Math.max((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
+            } else {
+                paddle1y += Math.min((playTop + playBottom) / 2 + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
+            }
+        }
+        else if (bally > paddle1y) {
+            paddle1y += Math.min(bally + unitLength / 2 - paddle1y, maxPaddleSpeed / AIps);
+        } else {
+            paddle1y += Math.max(bally + unitLength / 2 - paddle1y, -maxPaddleSpeed / AIps);
+        }
 
-    // check for player's paddle moving at the same time (this is bad)
-	if (downArrow && !upArrow) {
-        paddle2y = Math.min(playBottom, paddle2y + 2 * maxPaddleSpeed / AIps);
-        queuePointer = (queuePointer + 1) % queueLen;
-        circQueue[queuePointer] = paddle2y;
-	}
-	else if (upArrow && !downArrow) {
-        paddle2y = Math.max(0, paddle2y - 2 * maxPaddleSpeed / AIps);
-        queuePointer = (queuePointer + 1) % queueLen;
-        circQueue[queuePointer] = paddle2y;
-	}
+        // check for player's paddle moving at the same time (this is bad)
+        if (downArrow && !upArrow) {
+            paddle2y = Math.min(playBottom, paddle2y + 2 * maxPaddleSpeed / AIps);
+            queuePointer = (queuePointer + 1) % queueLen;
+            circQueue[queuePointer] = paddle2y;
+        }
+        else if (upArrow && !downArrow) {
+            paddle2y = Math.max(0, paddle2y - 2 * maxPaddleSpeed / AIps);
+            queuePointer = (queuePointer + 1) % queueLen;
+            circQueue[queuePointer] = paddle2y;
+        }
 
-	window.setTimeout(runAI, 1000 / AIps);
+        window.setTimeout(runAI, 1000 / AIps);
+    }
 }
 
 function nextSet() {
@@ -205,28 +210,50 @@ function nextSet() {
 
 function mainLoop(time) {
 	if (gameOn) {
-    updateDisplay();
-    // check if ball has passed the sides, and if yes and if player hasn't won, go to next set
-    let startNew = false;
-    if (ballx < 0-unitLength) {
-		score2++;
-		startNew = true;
-    }  else if (ballx > canvas.width) {
-		score1++;
-		startNew = true;
+        updateDisplay();
+        // check if ball has passed the sides, and if yes and if player hasn't won, go to next set
+        let startNew = false;
+        if (ballx < 0-unitLength) {
+		    score2++;
+		    startNew = true;
+        }  else if (ballx > canvas.width) {
+		    score1++;
+		    startNew = true;
+        }
+        if (score1 >= maxScore || score2 >= maxScore) {
+		    gameOn = false;
+		    updateDisplay();
+        } else if (startNew) {
+    	    nextSet();
+    	    window.requestAnimationFrame(mainLoop);
+        } else {
+    	    window.requestAnimationFrame(mainLoop);
+        }
     }
-    if (score1 >= maxScore || score2 >= maxScore) {
-		gameOn = false;
-		updateDisplay();
-    } else if (startNew) {
-    	nextSet();
-    	window.requestAnimationFrame(mainLoop);
-    } else {
-    	window.requestAnimationFrame(mainLoop);
-    }
-  }
 }
-gameOn = true;
-window.requestAnimationFrame(mainLoop);
-updateBall();
-runAI();
+function start() {
+    gameOn = true;
+    score1 = 0;
+    score2 = 0;
+    // ball variables
+    ballx = (playLeft + playRight) / 2;
+    bally = (playTop + playBottom) / 2;
+    ballvx = 300; // in pixels per second
+    ballvy = 40;
+    
+    // paddle variables
+    paddle1x = playLeft + unitLength;
+    paddle2x = playRight - unitLength;
+    upArrow = false; // flag for up arrow being pressed
+    downArrow = false; // flag for down arrow being pressed
+    // paddle speed calculation variables
+    circQueue = [];
+    queuePointer = 0;
+    for (let q = 0; q < queueLen; q++) {
+        circQueue.push(paddle2y);
+    }
+    window.requestAnimationFrame(mainLoop);
+    updateBall();
+    runAI();
+};
+start();
