@@ -38,7 +38,7 @@ h2 {
 }
 
 a:hover {
-	text-decoration: underline dotted;
+  border-bottom: dotted 1px;
 	outline: none;
 }
 
@@ -108,19 +108,23 @@ a:active {
 	justify-content: right;
 }
 
+.socialize > a:hover {
+  border: none;
+}
+
 .socialize > a > img {
 	padding: 8px;
 	width: 20px;
 	opacity: 70%;
 	filter: invert(14%) sepia(15%) saturate(336%) hue-rotate(130deg) brightness(99%) contrast(92%);
-	transition: opacity .2s, transform .3s;
+  transition: opacity .2s, transform .3s;
 }
-
 
 .socialize > a:hover > img {
 	opacity: 90%;
 	filter: invert(14%) sepia(15%) saturate(336%) hue-rotate(130deg) brightness(99%) contrast(92%);
-	transform: scale(1.3) rotate(-10deg);
+  transform: scale(1.3) rotate(-10deg);
+  border: none;
 }
 
 .right {
@@ -157,16 +161,14 @@ a:active {
 
 .project-grid {
 	display: grid;
-	/* margin: 40px; */
 	column-gap: 10%;
-	grid-template-columns: 1;
 	grid-auto-rows: minmax(125px, 1fr);
 	align-items: stretch;
 	border-bottom: dashed 1px pink;
 }
 
 .project-grid > a:hover {
-	text-decoration: none;
+  border-bottom: none;
 }
 
 .grid-link {
@@ -178,12 +180,13 @@ a:active {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
+  justify-content: space-between;
+  align-items: flex-start;
 	padding: 20px 5px;
 	border: dashed 1px pink; 
 	border-left: none;
 	border-right: none;
-	border-bottom: none
+  border-bottom: none
 }
 
 .grid-item > .item-title {
@@ -192,7 +195,7 @@ a:active {
 }
 
 .grid-item > .item-title:hover {
-	text-decoration: underline dotted;
+  border-bottom: dotted 1px;
 	font-weight: 300;
 	font-size: 1.2rem;
 }
